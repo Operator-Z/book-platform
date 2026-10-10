@@ -14,7 +14,7 @@ export class ChatService {
     this.disconnect();
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS('https://book-platform-backend-qzo3.onrender.com/ws'),
       reconnectDelay: 5000
     });
 

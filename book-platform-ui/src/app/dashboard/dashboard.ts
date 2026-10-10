@@ -46,7 +46,7 @@ export class DashboardComponent implements OnInit {
       error: (err: any) => {
         console.error('Failed to load catalog:', err);
         this.loading = false;
-        this.errorMessage = 'Could not connect to Spring Boot at http://localhost:8080/api/books.';
+        this.errorMessage = 'Could not connect to Spring Boot at https://book-platform-backend-qzo3.onrender.com/api/books.';
         this.cdr.detectChanges();
       }
     });

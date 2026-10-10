@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = 'https://book-platform-backend-qzo3.onrender.com/api';
   public currentUserId = 1;
 
   constructor(private http: HttpClient) {}
