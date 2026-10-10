@@ -1,0 +1,140 @@
+<div class="container py-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">📚 Virtual Library Catalog</h2>
+      <p class="text-muted mb-0">Browse {{ books.length }} books fetched from Open Library</p>
+    </div>
+    <div class="col-12 col-md-4 mt-2 mt-md-0">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by title or author..."
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger shadow-sm">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+  </div>
+
+  <div *ngIf="statusMessage" class="alert alert-success shadow-sm">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ statusMessage }}
+  </div>
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted">Loading 100-book catalog from Spring Boot...</p>
+  </div>
+
+  <!-- Book Grid -->
+  <div class="row g-4" *ngIf="!loading && !errorMessage">
+    <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let book of filteredBooks">
+      <div class="card h-100 shadow-sm border-0">
+        <img
+          [src]="book.coverPageIllustration !== 'No Cover Available' ? book.coverPageIllustration : 'https://placehold.co/300x450?text=Book+Cover'"
+          class="card-img-top"
+          alt="{{ book.name }}"
+          style="height: 260px; object-fit: cover;"
+        />
+        <div class="card-body d-flex flex-column">
+          <h6 class="card-title fw-bold text-truncate" [title]="book.name">{{ book.name }}</h6>
+          <p class="card-text text-muted small mb-2">by {{ book.author }}</p>
+          <span class="badge bg-secondary-subtle text-secondary align-self-start mb-2">
+            ISBN: {{ book.isbn }}
+          </span>
+
+          <div class="mb-3">
+            <app-star-rating [rating]="book.averageRating !== undefined ? book.averageRating : 4.5"></app-star-rating>
+          </div>
+
+          <div class="mt-auto d-grid gap-2">
+            <button
+              class="btn btn-primary btn-sm"
+              (click)="addToShelf(book, 'TO_BE_READ')"
+            >
+              <i class="bi bi-bookmark-plus me-1"></i> Add to Bookshelf
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              (click)="openReviewsModal(book)"
+            >
+              <i class="bi bi-chat-square-quote me-1"></i> Reviews & Rate
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews & 0.5 Rating Modal Overlay -->
+  <div
+    *ngIf="selectedBook"
+    class="modal fade show d-block"
+    tabindex="-1"
+    style="background: rgba(0, 0, 0, 0.55);"
+  >
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <div>
+            <h5 class="modal-title mb-0">{{ selectedBook.name }}</h5>
+            <small class="text-white-50">by {{ selectedBook.author }} • Averaged Sentiment & Reviews</small>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="closeReviewsModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Averaged Rating Summary -->
+          <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded mb-4">
+            <div>
+              <span class="text-muted small d-block">Community Averaged Rating (0.5 System)</span>
+              <app-star-rating [rating]="selectedBook.averageRating || 0"></app-star-rating>
+            </div>
+            <span class="badge bg-primary rounded-pill">{{ bookReviews.length }} Review(s)</span>
+          </div>
+
+          <!-- Post a Review Form -->
+          <div class="card border-0 bg-body-tertiary p-3 mb-4">
+            <h6 class="fw-bold mb-2">Write a Public Review</h6>
+            <div *ngIf="reviewFeedback" class="alert alert-info py-2 small">{{ reviewFeedback }}</div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-4">
+                <label class="form-label small mb-1">Rating (0.5 increments):</label>
+                <select class="form-select form-select-sm" [(ngModel)]="newRating">
+                  <option *ngFor="let r of ratingOptions" [ngValue]="r">⭐ {{ r.toFixed(1) }} / 5.0</option>
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label small mb-1">Your Review:</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Share your thoughts on this book..."
+                  [(ngModel)]="newReviewContent"
+                  (keyup.enter)="submitReview()"
+                />
+              </div>
+            </div>
+            <button class="btn btn-success btn-sm align-self-end" (click)="submitReview()">
+              Post Public Review
+            </button>
+          </div>
+
+          <!-- Existing Public Reviews List -->
+          <h6 class="fw-bold mb-3">Community Reviews</h6>
+          <div *ngIf="bookReviews.length === 0" class="text-muted text-center py-3">
+            No public reviews yet. Be the first to rate and review this book!
+          </div>
+          <div *ngFor="let rev of bookReviews" class="border-bottom pb-2 mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong class="text-primary small">{{ rev.user?.username || 'Reader' }}</strong>
+              <app-star-rating [rating]="rev.rating"></app-star-rating>
+            </div>
+            <p class="mb-0 small text-dark mt-1">{{ rev.content }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

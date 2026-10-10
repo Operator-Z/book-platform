@@ -1,0 +1,75 @@
+<div class="container py-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">📖 My Personal Bookshelf</h2>
+      <p class="text-muted mb-0">Track your reading statuses: Read, To-Be Read, Want to Re-Read, and DNF</p>
+    </div>
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <ul class="nav nav-pills mb-4 gap-2">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="selectedFilter === 'ALL'"
+        (click)="selectedFilter = 'ALL'"
+      >
+        All ({{ getCount('ALL') }})
+      </button>
+    </li>
+    <li class="nav-item" *ngFor="let s of statuses">
+      <button
+        class="nav-link"
+        [class.active]="selectedFilter === s.value"
+        (click)="selectedFilter = s.value"
+      >
+        {{ s.label }} ({{ getCount(s.value) }})
+      </button>
+    </li>
+  </ul>
+
+  <!-- Notification Toast -->
+  <div *ngIf="statusMessage" class="alert alert-success shadow-sm">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ statusMessage }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredItems.length === 0" class="card border-0 shadow-sm p-5 text-center">
+    <h5 class="text-muted">No books in this shelf view yet</h5>
+    <p class="text-muted mb-0">Go to the Catalog tab and click "Add to Bookshelf" on any book!</p>
+  </div>
+
+  <!-- Bookshelf Grid -->
+  <div class="row g-4" *ngIf="!loading && filteredItems.length > 0">
+    <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let item of filteredItems">
+      <div class="card h-100 shadow-sm border-0">
+        <img
+          [src]="item.book?.coverPageIllustration !== 'No Cover Available' ? item.book?.coverPageIllustration : 'https://placehold.co/300x450?text=Book+Cover'"
+          class="card-img-top"
+          alt="{{ item.book?.name }}"
+          style="height: 240px; object-fit: cover;"
+        />
+        <div class="card-body d-flex flex-column">
+          <span class="badge align-self-start mb-2" [ngClass]="getStatusBadge(item.status)">
+            {{ getStatusLabel(item.status) }}
+          </span>
+          <h6 class="card-title fw-bold text-truncate" [title]="item.book?.name">{{ item.book?.name }}</h6>
+          <p class="card-text text-muted small mb-3">by {{ item.book?.author }}</p>
+
+          <div class="mt-auto">
+            <label class="form-label small text-muted mb-1">Update Reading Status:</label>
+            <select
+              class="form-select form-select-sm"
+              [ngModel]="item.status"
+              (ngModelChange)="updateStatus(item, $event)"
+            >
+              <option *ngFor="let s of statuses" [value]="s.value">
+                {{ s.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

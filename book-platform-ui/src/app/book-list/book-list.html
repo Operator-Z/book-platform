@@ -1,0 +1,115 @@
+<div class="container py-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">📋 Community Booklists</h2>
+      <p class="text-muted mb-0">Create custom curated lists (like "Top50 parlies" or "My-pv-list") and vote on your favorites</p>
+    </div>
+  </div>
+
+  <!-- Feedback Toast -->
+  <div *ngIf="feedbackMessage" class="alert alert-success shadow-sm">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ feedbackMessage }}
+  </div>
+
+  <!-- Create New Booklist Card -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="fw-bold mb-2">Create a New Booklist</h6>
+      <div class="row g-2 align-items-center">
+        <div class="col-md-6">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter list name (e.g., Top50 parlies, My-pv-list)..."
+            [(ngModel)]="newListName"
+            (keyup.enter)="createList()"
+          />
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-primary" (click)="createList()">
+            <i class="bi bi-plus-lg me-1"></i> Create List
+          </button>
+        </div>
+        <div class="col-md-auto ms-md-auto">
+          <span class="small text-muted me-2">Quick presets:</span>
+          <button class="btn btn-outline-secondary btn-sm me-1" (click)="createList('Top50 parlies')">
+            + Top50 parlies
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="createList('My-pv-list')">
+            + My-pv-list
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && bookLists.length === 0" class="card border-0 shadow-sm p-5 text-center">
+    <h5 class="text-muted">No booklists created yet</h5>
+    <p class="text-muted mb-0">Use the box above or click "+ Top50 parlies" to create your first list!</p>
+  </div>
+
+  <!-- Booklists Grid -->
+  <div class="row g-4" *ngIf="!loading && bookLists.length > 0">
+    <div class="col-md-6" *ngFor="let list of bookLists">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="fw-bold mb-0 text-dark">{{ list.name }}</h5>
+            <small class="text-muted">Created by {{ list.creator?.username || 'EverydayReader' }}</small>
+          </div>
+
+          <!-- Upvote / Downvote Controls -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-success btn-sm" (click)="upvote(list)">
+              <i class="bi bi-hand-thumbs-up-fill me-1"></i> {{ list.upvotes || 0 }}
+            </button>
+            <button class="btn btn-outline-danger btn-sm" (click)="downvote(list)">
+              <i class="bi bi-hand-thumbs-down-fill me-1"></i> {{ list.downvotes || 0 }}
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <h6 class="small fw-semibold text-uppercase text-muted mb-2">
+            Books in this list ({{ list.books?.length || 0 }})
+          </h6>
+
+          <div *ngIf="!list.books || list.books.length === 0" class="text-muted small py-2 mb-3">
+            No books added to this list yet. Select a book below to add one!
+          </div>
+
+          <ul class="list-group list-group-flush mb-3" *ngIf="list.books && list.books.length > 0">
+            <li
+              class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center"
+              *ngFor="let b of list.books"
+            >
+              <div class="text-truncate me-2">
+                <i class="bi bi-book me-2 text-primary"></i>
+                <strong>{{ b.name }}</strong>
+                <span class="text-muted small"> by {{ b.author }}</span>
+              </div>
+              <span class="badge bg-light text-secondary border">{{ b.isbn }}</span>
+            </li>
+          </ul>
+
+          <!-- Add a Book from Catalog to this List -->
+          <div class="mt-auto pt-2 border-top">
+            <label class="form-label small text-muted mb-1">Add a book from the catalog:</label>
+            <div class="input-group input-group-sm">
+              <select class="form-select" [(ngModel)]="selectedBookByList[list.id]">
+                <option [ngValue]="undefined">Select a book...</option>
+                <option *ngFor="let book of catalogBooks" [ngValue]="book.id">
+                  {{ book.name }} — {{ book.author }}
+                </option>
+              </select>
+              <button class="btn btn-dark" (click)="addBookToBooklist(list)">
+                Add Book
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

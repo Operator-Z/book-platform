@@ -1,0 +1,121 @@
+<div class="container py-3">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-0">🏛️ BookClubs Community</h2>
+      <p class="text-muted mb-0">Form broad community pages to hold discussions and interact with fellow readers</p>
+    </div>
+  </div>
+
+  <div *ngIf="feedbackMessage" class="alert alert-success shadow-sm">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ feedbackMessage }}
+  </div>
+
+  <!-- Create New BookClub Card -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="fw-bold mb-2">Start a New BookClub</h6>
+      <div class="row g-2">
+        <div class="col-md-4">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Club Name (e.g., Sci-Fi Explorers)"
+            [(ngModel)]="newClubName"
+          />
+        </div>
+        <div class="col-md-6">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Community description & discussion theme..."
+            [(ngModel)]="newClubDescription"
+            (keyup.enter)="createClub()"
+          />
+        </div>
+        <div class="col-md-2 d-grid">
+          <button class="btn btn-primary" (click)="createClub()">
+            <i class="bi bi-plus-circle me-1"></i> Create Club
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: List of BookClubs -->
+    <div class="col-lg-5">
+      <h6 class="fw-bold text-uppercase text-muted small mb-3">Available BookClubs ({{ clubs.length }})</h6>
+
+      <div *ngIf="!loading && clubs.length === 0" class="card border-0 shadow-sm p-4 text-center text-muted">
+        No BookClubs yet. Create your first community club above!
+      </div>
+
+      <div
+        class="card border-0 shadow-sm mb-3"
+        *ngFor="let club of clubs"
+        [class.border-start]="activeClub?.id === club.id"
+        [class.border-primary]="activeClub?.id === club.id"
+        [class.border-4]="activeClub?.id === club.id"
+      >
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <h5 class="fw-bold mb-1">{{ club.name }}</h5>
+            <span class="badge bg-secondary-subtle text-secondary">
+              <i class="bi bi-people-fill me-1"></i>{{ club.members?.length || 0 }} Members
+            </span>
+          </div>
+          <p class="text-muted small mb-3">{{ club.description }}</p>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" (click)="joinClub(club)">
+              <i class="bi bi-person-plus me-1"></i> Join Club
+            </button>
+            <button class="btn btn-dark btn-sm ms-auto" (click)="selectClub(club)">
+              <i class="bi bi-chat-dots me-1"></i> Open Discussions
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Active BookClub Discussion Board -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm h-100" *ngIf="activeClub">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="mb-0 fw-bold">{{ activeClub.name }} — Community Board</h5>
+            <small class="text-white-50">{{ activeClub.description }}</small>
+          </div>
+          <span class="badge bg-success">Posting as {{ username }}</span>
+        </div>
+
+        <div class="card-body bg-light" style="height: 340px; overflow-y: auto;">
+          <div *ngIf="!clubPosts[activeClub.id] || clubPosts[activeClub.id].length === 0" class="text-center text-muted my-5">
+            <i class="bi bi-chat-square-text fs-2 d-block mb-2"></i>
+            No discussion posts in this club yet. Start the conversation below!
+          </div>
+
+          <div
+            *ngFor="let post of clubPosts[activeClub.id]"
+            class="p-3 mb-2 bg-white rounded shadow-sm border-start border-4 border-primary"
+          >
+            <strong class="text-primary small">{{ post.sender }}</strong>
+            <p class="mb-0 text-dark mt-1">{{ post.content }}</p>
+          </div>
+        </div>
+
+        <div class="card-footer bg-white">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Write a post to the {{ activeClub.name }} community..."
+              [(ngModel)]="discussionPost"
+              (keyup.enter)="postToClub()"
+            />
+            <button class="btn btn-primary px-4" (click)="postToClub()">Post</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
