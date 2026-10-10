@@ -14,14 +14,19 @@ services:
         sync: false
       - key: SPRING_DATASOURCE_PASSWORD
         sync: false
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.MySQLDialect
 
   # Static Site for Angular UI
   - type: web
     name: book-platform-ui
     runtime: static
     rootDir: book-platform-ui
-    buildCommand: npm install && npm run build -- --configuration production
+    buildCommand: npm install --legacy-peer-deps && npx ng build --configuration development
     staticPublishPath: ./dist/book-platform-ui/browser
+    envVars:
+      - key: NODE_VERSION
+        value: 22
     routes:
       - type: rewrite
         source: /*

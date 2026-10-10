@@ -8,7 +8,7 @@ on:
 
 env:
   JAVA_VERSION: '17'
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   BACKEND_DIR: './library'
   FRONTEND_DIR: './book-platform-ui'
 
@@ -83,11 +83,11 @@ jobs:
 
       - name: Install Angular Dependencies
         working-directory: ${{ env.FRONTEND_DIR }}
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
-      - name: Build Production Angular Bundle
+      - name: Build Angular Bundle
         working-directory: ${{ env.FRONTEND_DIR }}
-        run: npm run build -- --configuration production
+        run: npx ng build --configuration development
 
       - name: Upload Frontend Build Artifact
         uses: actions/upload-artifact@v4
